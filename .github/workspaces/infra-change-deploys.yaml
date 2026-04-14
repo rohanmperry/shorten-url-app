@@ -1,0 +1,20 @@
+name: Infra Change PRs
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  infra-deploy:
+    name: Infra Deploy
+    uses: ./.github/workflows/infra-change.yaml
+    with:
+      runs-on: ubuntu-latest
+      tf-version: '1.14.8'
+      aws-web-role-arn: 'arn:aws:iam::659212880322:role/github-actions'
+      apply: true

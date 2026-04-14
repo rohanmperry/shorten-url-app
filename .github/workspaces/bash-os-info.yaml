@@ -1,0 +1,39 @@
+name: Show Bash and OS Info
+
+on:
+  workflow_dispatch:
+
+jobs:
+  show-bash-settings:
+    name: Show Bash Settings
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show ENV
+        run: env
+
+      - name: Show options
+        run: echo "$-"
+
+  show-files:
+    name: Show files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show files
+        run: ls -lR
+
+  show-filesystems:
+    name: Show Filesystems
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show df
+        run: df -h
+
+  show-other-info:
+    name: Show Other Info
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show CPU Info
+        run: cat /proc/cpuinfo
+
+      - name: Show Mem Info
+        run: cat /proc/meminfo

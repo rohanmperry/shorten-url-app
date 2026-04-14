@@ -1,0 +1,77 @@
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        required: true
+        type: string
+      aws-web-role-arn:
+        required: true
+        type: string
+      aws-region:
+        required: false
+        type: string
+        default: 'us-east-1'
+      tf-version:
+        required: false
+        type: string
+        default: '1.14.8'
+      apply:
+        required: false
+        type: boolean
+        default: false
+
+env:
+  AWS_DEFAULT_REGION: ${{ inputs.aws-region || 'us-east-1' }}
+  TF_VERSION: ${{ inputs.tf-version || '1.14.8' }}
+  TF_IN_AUTOMATION: true
+  # Set TF Debug level accordingly: ERROR, WARN, INFO,DEBUG, TRACE or null ('')
+  #  to turn it off, oe comment the line below.
+  TF_LOG: ''
+
+jobs:
+  run-change:
+    name: Run Change
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: make install-dev
+
+      - name: Run Tests
+        run: make test
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ inputs.aws-web-role-arn }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      # - name: Package Lambba
+      #   run: make package
+
+      - name: TF Init and Validate
+        run: |
+          make init
+          make validate
+
+      - name: TF Plan
+        if: ${{ !inputs.apply }}
+        run: make plan
+        timeout-minutes: 2
+
+      - name: TF Apply
+        if: ${{ inputs.apply }}
+        run: make apply
+        timeout-minutes: 5
