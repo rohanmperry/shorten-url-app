@@ -47,6 +47,9 @@ jobs:
       - name: Run Tests
         run: make test
 
+      - name: Build Images for Testing
+        run: make build-only
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -57,9 +60,6 @@ jobs:
         uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ env.TF_VERSION }}
-
-      # - name: Package Lambba
-      #   run: make package
 
       - name: TF Init and Validate
         run: |
