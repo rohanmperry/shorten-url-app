@@ -1,4 +1,4 @@
-name: Infra Change PRs
+name: Infra Change Deploys
 
 on:
   workflow_dispatch:
