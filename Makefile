@@ -57,6 +57,12 @@ login: check-env
 	aws ecr get-login-password --region $(AWS_REGION) | \
 		docker login --username AWS --password-stdin $(ECR_REGISTRY)
 
+build-only:
+	# Without the -t (tag) option, Dockers builds and discards it,
+	# just for testing the biuld.
+	docker build --target create-short-url .
+	docker build --target redirect .
+
 build: check-env
 	docker build --target create-short-url -t $(CREATE_SHORT_URL_IMAGE) .
 	docker build --target redirect -t $(REDIRECT_IMAGE) .

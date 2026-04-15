@@ -47,6 +47,14 @@ jobs:
       - name: Run Tests
         run: make test
 
+      - name: Build Images for Testing
+        if: ${{ !inputs.apply }}
+        run: make build-only
+
+      - name: Build Images for Push
+        if: ${{ inputs.apply }}
+        run: make build
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -57,9 +65,6 @@ jobs:
         uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ env.TF_VERSION }}
-
-      # - name: Package Lambba
-      #   run: make package
 
       - name: TF Init and Validate
         run: |
@@ -75,3 +80,7 @@ jobs:
         if: ${{ inputs.apply }}
         run: make apply
         timeout-minutes: 5
+
+      - name: Image Push
+        if: ${{ inputs.apply }}
+        run: build push
