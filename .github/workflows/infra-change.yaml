@@ -51,15 +51,15 @@ jobs:
         if: ${{ !inputs.apply }}
         run: make build-only
 
-      - name: Build Images for Push
-        if: ${{ inputs.apply }}
-        run: make build
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ inputs.aws-web-role-arn }}
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Build Images for Push
+        if: ${{ inputs.apply }}
+        run: make build
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v4
