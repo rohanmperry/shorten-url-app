@@ -48,7 +48,12 @@ jobs:
         run: make test
 
       - name: Build Images for Testing
+        if: ${{ !inputs.apply }}
         run: make build-only
+
+      - name: Build Images for Push
+        if: ${{ inputs.apply }}
+        run: make build
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -75,3 +80,7 @@ jobs:
         if: ${{ inputs.apply }}
         run: make apply
         timeout-minutes: 5
+
+      - name: Image Push
+        if: ${{ nputs.apply }}
+        run: build push
