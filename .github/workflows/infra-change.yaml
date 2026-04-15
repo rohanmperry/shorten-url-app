@@ -83,4 +83,4 @@ jobs:
 
       - name: Image Push
         if: ${{ inputs.apply }}
-        run: build push
+        run: make push
