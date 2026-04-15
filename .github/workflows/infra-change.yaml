@@ -82,5 +82,5 @@ jobs:
         timeout-minutes: 5
 
       - name: Image Push
-        if: ${{ nputs.apply }}
+        if: ${{ inputs.apply }}
         run: build push
