@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>short.manamperi.com — URL Shortener</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal-600: #0F6E56;
+      --teal-500: #1D9E75;
+      --teal-50:  #E1F5EE;
+      --gray-50:  #F8F9FA;
+      --gray-100: #F1F0EA;
+      --gray-200: #E0DED6;
+      --gray-400: #9A9890;
+      --gray-600: #5F5E5A;
+      --gray-900: #1A1A18;
+      --red-600:  #C0392B;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      border-bottom: 0.5px solid var(--gray-200);
+      background: #fff;
+      padding: 0 1.5rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--teal-500);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .brand-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .brand-name {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--gray-900);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 560px;
+    }
+
+    .hero {
+      margin-bottom: 2rem;
+    }
+
+    .hero h1 {
+      font-size: 26px;
+      font-weight: 500;
+      color: var(--gray-900);
+      margin-bottom: 6px;
+    }
+
+    .hero p {
+      font-size: 15px;
+      color: var(--gray-600);
+      line-height: 1.6;
+    }
+
+    .card {
+      background: #fff;
+      border: 0.5px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .input-row input {
+      flex: 1;
+      height: 42px;
+      padding: 0 14px;
+      font-size: 14px;
+      border: 0.5px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      background: #fff;
+      color: var(--gray-900);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .input-row input:focus {
+      border-color: var(--teal-500);
+      box-shadow: 0 0 0 3px rgba(29, 158, 117, 0.12);
+    }
+
+    .input-row input::placeholder {
+      color: var(--gray-400);
+    }
+
+    .btn-shorten {
+      height: 42px;
+      padding: 0 22px;
+      background: var(--teal-500);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+
+    .btn-shorten:hover { background: var(--teal-600); }
+    .btn-shorten:active { transform: scale(0.98); }
+    .btn-shorten:disabled { background: var(--gray-200); color: var(--gray-400); cursor: not-allowed; transform: none; }
+
+    .spinner {
+      width: 15px;
+      height: 15px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--red-600);
+      display: none;
+    }
+
+    .result {
+      display: none;
+      margin-top: 14px;
+      padding: 14px;
+      background: var(--teal-50);
+      border-radius: var(--radius-md);
+      border: 0.5px solid #9FE1CB;
+    }
+
+    .result-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--teal-600);
+      margin-bottom: 8px;
+    }
+
+    .result-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .result-url {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--teal-600);
+      word-break: break-all;
+      text-decoration: none;
+    }
+
+    .result-url:hover { text-decoration: underline; }
+
+    .btn-copy {
+      height: 32px;
+      padding: 0 12px;
+      background: #fff;
+      border: 0.5px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      color: var(--gray-600);
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .btn-copy:hover { border-color: var(--gray-400); }
+    .btn-copy.copied { color: var(--teal-600); border-color: var(--teal-500); background: #fff; }
+
+    .history {
+      display: none;
+    }
+
+    .history-header {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-600);
+      margin-bottom: 10px;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 0.5px solid var(--gray-100);
+    }
+
+    .history-item:last-child { border-bottom: none; }
+
+    .history-urls {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .history-short {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--teal-600);
+      text-decoration: none;
+    }
+
+    .history-short:hover { text-decoration: underline; }
+
+    .history-long {
+      font-size: 12px;
+      color: var(--gray-400);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    .btn-history-copy {
+      height: 28px;
+      padding: 0 10px;
+      background: transparent;
+      border: 0.5px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      color: var(--gray-600);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .btn-history-copy:hover { border-color: var(--gray-400); }
+    .btn-history-copy.copied { color: var(--teal-600); border-color: var(--teal-500); }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 12px;
+      color: var(--gray-400);
+      border-top: 0.5px solid var(--gray-200);
+    }
+
+    @media (max-width: 480px) {
+      .input-row { flex-direction: column; }
+      .btn-shorten { width: 100%; justify-content: center; }
+      .hero h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="/">
+    <div class="brand-icon">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 12L12 8M9 5H6a3 3 0 000 6h1M11 15h3a3 3 0 000-6h-1"
+          stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <span class="brand-name">short.manamperi.com</span>
+  </a>
+</header>
+
+<main>
+  <div class="container">
+
+    <div class="hero">
+      <h1>Shorten a URL</h1>
+      <p>Paste a long link below and get a short, shareable URL instantly.</p>
+    </div>
+
+    <div class="card">
+      <div class="input-row">
+        <input
+          type="url"
+          id="url-input"
+          placeholder="https://your-very-long-url.com/goes/here"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
+        <button class="btn-shorten" id="shorten-btn" onclick="shortenUrl()">
+          <span id="btn-text">Shorten</span>
+          <div class="spinner" id="spinner"></div>
+        </button>
+      </div>
+
+      <div class="error" id="error-msg"></div>
+
+      <div class="result" id="result">
+        <div class="result-label">Your short URL</div>
+        <div class="result-row">
+          <a class="result-url" id="result-url" href="#" target="_blank" rel="noopener"></a>
+          <button class="btn-copy" id="copy-btn" onclick="copyResult()">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+              <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+              <path d="M11 5V3.5A1.5 1.5 0 009.5 2h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5"
+                stroke="currentColor" stroke-width="1.4"/>
+            </svg>
+            Copy
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="history" id="history">
+      <div class="card">
+        <div class="history-header">Recent</div>
+        <div id="history-list"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  Built with AWS Lambda, API Gateway, DynamoDB &amp; CloudFront
+</footer>
+
+<script>
+  const API_BASE = '';
+  let recentUrls = [];
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function hideError() {
+    document.getElementById('error-msg').style.display = 'none';
+  }
+
+  function isValidUrl(url) {
+    try { new URL(url); return true; } catch { return false; }
+  }
+
+  async function shortenUrl() {
+    const input = document.getElementById('url-input');
+    const url = input.value.trim();
+    hideError();
+
+    if (!url) {
+      showError('Please enter a URL.');
+      return;
+    }
+    if (!isValidUrl(url)) {
+      showError('Please enter a valid URL including https://');
+      return;
+    }
+
+    const btn = document.getElementById('shorten-btn');
+    const btnText = document.getElementById('btn-text');
+    const spinner = document.getElementById('spinner');
+
+    btn.disabled = true;
+    btnText.style.display = 'none';
+    spinner.style.display = 'block';
+
+    try {
+      const res = await fetch(`${API_BASE}/shorten`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showError(data.message || 'Something went wrong. Please try again.');
+        return;
+      }
+
+      const shortUrl = data.short_url;
+
+      const resultUrlEl = document.getElementById('result-url');
+      resultUrlEl.textContent = shortUrl;
+      resultUrlEl.href = shortUrl;
+
+      const copyBtn = document.getElementById('copy-btn');
+      copyBtn.classList.remove('copied');
+      copyBtn.innerHTML = `
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+          <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M11 5V3.5A1.5 1.5 0 009.5 2h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5"
+            stroke="currentColor" stroke-width="1.4"/>
+        </svg> Copy`;
+
+      document.getElementById('result').style.display = 'block';
+
+      addToHistory(url, shortUrl);
+      input.value = '';
+
+    } catch (e) {
+      showError('Network error. Please check your connection and try again.');
+    } finally {
+      btn.disabled = false;
+      btnText.style.display = 'inline';
+      spinner.style.display = 'none';
+    }
+  }
+
+  function copyResult() {
+    const url = document.getElementById('result-url').textContent;
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.classList.add('copied');
+      btn.innerHTML = `
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+          <path d="M2.5 8L6 11.5L13.5 4" stroke="currentColor" stroke-width="1.6"
+            stroke-linecap="round" stroke-linejoin="round"/>
+        </svg> Copied`;
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = `
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+            <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M11 5V3.5A1.5 1.5 0 009.5 2h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5"
+              stroke="currentColor" stroke-width="1.4"/>
+          </svg> Copy`;
+      }, 2000);
+    });
+  }
+
+  function addToHistory(longUrl, shortUrl) {
+    recentUrls.unshift({ longUrl, shortUrl });
+    if (recentUrls.length > 5) recentUrls.pop();
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const container = document.getElementById('history');
+    const list = document.getElementById('history-list');
+    if (recentUrls.length === 0) { container.style.display = 'none'; return; }
+    container.style.display = 'block';
+    list.innerHTML = recentUrls.map((item, i) => `
+      <div class="history-item">
+        <div class="history-urls">
+          <a class="history-short" href="${item.shortUrl}" target="_blank" rel="noopener">
+            ${item.shortUrl}
+          </a>
+          <div class="history-long">${item.longUrl}</div>
+        </div>
+        <button class="btn-history-copy" id="hcopy-${i}" onclick="copyHistoryUrl(${i})">Copy</button>
+      </div>
+    `).join('');
+  }
+
+  function copyHistoryUrl(i) {
+    navigator.clipboard.writeText(recentUrls[i].shortUrl).then(() => {
+      const btn = document.getElementById(`hcopy-${i}`);
+      if (btn) {
+        btn.classList.add('copied');
+        btn.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.textContent = 'Copy';
+        }, 2000);
+      }
+    });
+  }
+
+  document.getElementById('url-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') shortenUrl();
+  });
+</script>
+
+</body>
+</html>
