@@ -86,7 +86,7 @@ data "terraform_remote_state" "infra" {
   backend = "s3"
   config = {
     bucket = "my-projects-tfstate"
-    key    = "shorten-url/terraform.tfstate"
+    key    = "shorten-url-infra/terraform.tfstate"
     region = "us-east-1"
   }
 }
