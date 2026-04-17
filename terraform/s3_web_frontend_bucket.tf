@@ -81,3 +81,29 @@ resource "aws_s3_object" "frontend_404" {
     Environment = var.environment
   }
 }
+
+data "terraform_remote_state" "infra" {
+  backend = "s3"
+  config = {
+    bucket = "my-projects-tfstate"
+    key    = "shorten-url/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+
+# Invalidate CF cache if files change
+#
+resource "null_resource" "cloudfront_invalidation" {
+  triggers = {
+    index_etag     = aws_s3_object.frontend_index.etag
+    not_found_etag = aws_s3_object.frontend_404.etag
+  }
+
+  provisioner "local-exec" {
+    command = <<EOT
+      aws cloudfront create-invalidation \
+        --distribution-id ${data.terraform_remote_state.infra.outputs.cloudfront_distribution_id} \
+        --paths "/index.html" "/404.html"
+    EOT
+  }
+}
