@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>short.manamperi.com — URL Shortener</title>
+  <title>URL Shortener</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -58,10 +58,7 @@
       flex-shrink: 0;
     }
 
-    .brand-icon svg {
-      width: 18px;
-      height: 18px;
-    }
+    .brand-icon svg { width: 18px; height: 18px; }
 
     .brand-name {
       font-size: 15px;
@@ -77,14 +74,9 @@
       padding: 3rem 1.5rem;
     }
 
-    .container {
-      width: 100%;
-      max-width: 560px;
-    }
+    .container { width: 100%; max-width: 560px; }
 
-    .hero {
-      margin-bottom: 2rem;
-    }
+    .hero { margin-bottom: 2rem; }
 
     .hero h1 {
       font-size: 26px;
@@ -107,10 +99,7 @@
       margin-bottom: 1rem;
     }
 
-    .input-row {
-      display: flex;
-      gap: 8px;
-    }
+    .input-row { display: flex; gap: 8px; }
 
     .input-row input {
       flex: 1;
@@ -130,9 +119,7 @@
       box-shadow: 0 0 0 3px rgba(29, 158, 117, 0.12);
     }
 
-    .input-row input::placeholder {
-      color: var(--gray-400);
-    }
+    .input-row input::placeholder { color: var(--gray-400); }
 
     .btn-shorten {
       height: 42px;
@@ -167,12 +154,7 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .error {
-      margin-top: 10px;
-      font-size: 13px;
-      color: var(--red-600);
-      display: none;
-    }
+    .error { margin-top: 10px; font-size: 13px; color: var(--red-600); display: none; }
 
     .result {
       display: none;
@@ -192,11 +174,7 @@
       margin-bottom: 8px;
     }
 
-    .result-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .result-row { display: flex; align-items: center; gap: 10px; }
 
     .result-url {
       flex: 1;
@@ -227,18 +205,11 @@
     }
 
     .btn-copy:hover { border-color: var(--gray-400); }
-    .btn-copy.copied { color: var(--teal-600); border-color: var(--teal-500); background: #fff; }
+    .btn-copy.copied { color: var(--teal-600); border-color: var(--teal-500); }
 
-    .history {
-      display: none;
-    }
+    .history { display: none; }
 
-    .history-header {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--gray-600);
-      margin-bottom: 10px;
-    }
+    .history-header { font-size: 13px; font-weight: 500; color: var(--gray-600); margin-bottom: 10px; }
 
     .history-item {
       display: flex;
@@ -250,18 +221,9 @@
 
     .history-item:last-child { border-bottom: none; }
 
-    .history-urls {
-      flex: 1;
-      min-width: 0;
-    }
+    .history-urls { flex: 1; min-width: 0; }
 
-    .history-short {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--teal-600);
-      text-decoration: none;
-    }
-
+    .history-short { font-size: 13px; font-weight: 500; color: var(--teal-600); text-decoration: none; }
     .history-short:hover { text-decoration: underline; }
 
     .history-long {
@@ -314,7 +276,7 @@
           stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
       </svg>
     </div>
-    <span class="brand-name">short.manamperi.com</span>
+    <span class="brand-name" id="brand-name"></span>
   </a>
 </header>
 
@@ -371,11 +333,15 @@
   </div>
 </main>
 
-<footer>
-  Built with AWS Lambda, API Gateway, DynamoDB &amp; CloudFront
-</footer>
+<footer id="footer"></footer>
 
 <script>
+  const hostname = window.location.hostname;
+  document.getElementById('brand-name').textContent = hostname;
+  document.title = `URL Shortener — ${hostname}`;
+  document.getElementById('footer').textContent =
+    `${hostname} — Built with AWS Lambda, API Gateway, DynamoDB & CloudFront`;
+
   const API_BASE = '';
   let recentUrls = [];
 
@@ -398,14 +364,8 @@
     const url = input.value.trim();
     hideError();
 
-    if (!url) {
-      showError('Please enter a URL.');
-      return;
-    }
-    if (!isValidUrl(url)) {
-      showError('Please enter a valid URL including https://');
-      return;
-    }
+    if (!url) { showError('Please enter a URL.'); return; }
+    if (!isValidUrl(url)) { showError('Please enter a valid URL including https://'); return; }
 
     const btn = document.getElementById('shorten-btn');
     const btnText = document.getElementById('btn-text');
@@ -430,7 +390,6 @@
       }
 
       const shortUrl = data.short_url;
-
       const resultUrlEl = document.getElementById('result-url');
       resultUrlEl.textContent = shortUrl;
       resultUrlEl.href = shortUrl;
@@ -445,7 +404,6 @@
         </svg> Copy`;
 
       document.getElementById('result').style.display = 'block';
-
       addToHistory(url, shortUrl);
       input.value = '';
 

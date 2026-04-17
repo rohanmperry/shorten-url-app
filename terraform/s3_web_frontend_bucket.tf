@@ -48,7 +48,7 @@ resource "aws_s3_bucket_policy" "frontend" {
   policy = data.aws_iam_policy_document.frontend_bucket_policy.json
 }
 
-# Upload the inde.html object, if it has changed.
+# Upload the index.html object, if it has changed.
 #
 resource "aws_s3_object" "frontend_index" {
   bucket       = aws_s3_bucket.frontend.id
@@ -61,6 +61,23 @@ resource "aws_s3_object" "frontend_index" {
 
   tags = {
     Name        = "${var.project_name}-frontend-index"
+    Environment = var.environment
+  }
+}
+
+# Upload the 404.html object, if it has changed.
+#
+resource "aws_s3_object" "frontend_404" {
+  bucket       = aws_s3_bucket.frontend.id
+  key          = "404.html"
+  source       = "${path.root}/../src/frontend/404.html"
+  content_type = "text/html"
+  etag         = filemd5("${path.root}/../src/frontend/404.html")
+
+  depends_on = [aws_s3_bucket.frontend]
+
+  tags = {
+    Name        = "${var.project_name}-frontend-404"
     Environment = var.environment
   }
 }
