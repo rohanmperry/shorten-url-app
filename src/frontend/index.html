@@ -252,12 +252,60 @@
     .btn-history-copy:hover { border-color: var(--gray-400); }
     .btn-history-copy.copied { color: var(--teal-600); border-color: var(--teal-500); }
 
+    .about {
+      background: #fff;
+      border: 0.5px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .about h2 {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--gray-900);
+      margin-bottom: 0.75rem;
+    }
+
+    .about h3 {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gray-600);
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .about p {
+      font-size: 14px;
+      color: var(--gray-600);
+      line-height: 1.6;
+      margin-bottom: 0.5rem;
+    }
+
+    .about ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .about ul li {
+      font-size: 13px;
+      color: var(--gray-600);
+      padding: 4px 0;
+      border-bottom: 0.5px solid var(--gray-100);
+    }
+
+    .about ul li:last-child { border-bottom: none; }
+
+    .about a { color: var(--teal-600); text-decoration: none; }
+    .about a:hover { text-decoration: underline; }
+
     footer {
       text-align: center;
       padding: 1.5rem;
-      font-size: 12px;
-      color: var(--gray-400);
+      font-size: 15px;
+      color: var(--gray-800);
       border-top: 0.5px solid var(--gray-200);
+      line-height: 1.8;
     }
 
     @media (max-width: 480px) {
@@ -331,6 +379,8 @@
       </div>
     </div>
 
+    <div id="about"></div>
+
   </div>
 </main>
 
@@ -340,8 +390,13 @@
   const hostname = window.location.hostname;
   document.getElementById('brand-name').textContent = hostname;
   document.title = `URL Shortener — ${hostname}`;
-  document.getElementById('footer').textContent =
-    `${hostname} — Built with AWS Lambda, API Gateway, DynamoDB & CloudFront`;
+  document.getElementById('footer').innerHTML =
+    `${hostname} — Built with AWS Lambda, API Gateway, DynamoDB & CloudFront<br/>&copy; Jay Manamperi`;
+
+  fetch('/description.html')
+    .then(res => res.text())
+    .then(html => { document.getElementById('about').innerHTML = html; })
+    .catch(() => {});
 
   const API_BASE = '';
   let recentUrls = [];
