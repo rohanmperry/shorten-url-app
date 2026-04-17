@@ -82,6 +82,27 @@ resource "aws_s3_object" "frontend_404" {
   }
 }
 
+# Upload the description.html object, if it has changed.
+#
+resource "aws_s3_object" "frontend_description" {
+  bucket       = aws_s3_bucket.frontend.id
+  key          = "description.html"
+  source       = "${path.root}/../src/frontend/description.html"
+  content_type = "text/html"
+  etag         = filemd5("${path.root}/../src/frontend/description.html")
+
+  depends_on = [aws_s3_bucket.frontend]
+
+  tags = {
+    Name        = "${var.project_name}-frontend-description"
+    Environment = var.environment
+  }
+}
+
+# Get the info from remote state of the companian infra
+
+# Get the info from remote state of the companian infra
+# project, for later extracting CF distrib ID.
 data "terraform_remote_state" "infra" {
   backend = "s3"
   config = {
@@ -95,15 +116,16 @@ data "terraform_remote_state" "infra" {
 #
 resource "null_resource" "cloudfront_invalidation" {
   triggers = {
-    index_etag     = aws_s3_object.frontend_index.etag
-    not_found_etag = aws_s3_object.frontend_404.etag
+    index_etag       = aws_s3_object.frontend_index.etag
+    not_found_etag   = aws_s3_object.frontend_404.etag
+    description_etag = aws_s3_object.frontend_description.etag
   }
 
   provisioner "local-exec" {
     command = <<EOT
       aws cloudfront create-invalidation \
         --distribution-id ${data.terraform_remote_state.infra.outputs.cloudfront_distribution_id} \
-        --paths "/index.html" "/404.html"
+        --paths "/index.html" "/404.html" "/description.html"
     EOT
   }
 }
