@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+ipport time
 
 import boto3
 from botocore.exceptions import ClientError
@@ -42,6 +43,7 @@ def lambda_handler(event: dict, context) -> dict:
                 Item={
                     "short_code": short_code,
                     "original_url": original_url,
+                    "expires_at": int(time.time()) + (3 * 24 * 60 * 60),  # 3 days
                 },
                 ConditionExpression="attribute_not_exists(short_code)"
             )
