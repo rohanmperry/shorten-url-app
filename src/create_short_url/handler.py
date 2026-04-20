@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-ipport time
+import time
 
 import boto3
 from botocore.exceptions import ClientError
