@@ -18,7 +18,7 @@ Two Lambda functions, each built as a separate Docker image from a multi-stage D
 - `redirect` — looks up a short code in DynamoDB and redirects to the original URL
 
 ## Repository structure
-
+```
 shorten-url-app/
 ├── src/
 │   ├── create_short_url/   # Lambda handler for creating short URLs
@@ -31,7 +31,7 @@ shorten-url-app/
 │   ├── 404.html            # Custom error page
 │   └── description.html    # Project description (editable separately)
 └── Dockerfile              # Multi-stage build for both Lambda functions
-
+```
 ## Local development
 
 ### Prerequisites
