@@ -412,7 +412,12 @@
   }
 
   function isValidUrl(url) {
-    try { new URL(url); return true; } catch { return false; }
+    try {
+      const parsed = new URL(url);
+      return (parsed.protocol === 'http:' || parsed.protocol === 'https:') 
+             && parsed.hostname.length > 0
+             && parsed.hostname.includes('.');
+    } catch { return false; }
   }
 
   async function shortenUrl() {
@@ -441,7 +446,7 @@
       const data = await res.json();
 
       if (!res.ok) {
-        showError(data.message || 'Something went wrong. Please try again.');
+        showError(data.message || data.message || 'Something went wrong. Please try again.');
         return;
       }
 
