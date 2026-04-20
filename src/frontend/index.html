@@ -427,7 +427,7 @@
     hideError();
 
     if (!url) { showError('Please enter a URL.'); return; }
-    if (!isValidUrl(url)) { showError('Please enter a valid URL including https://'); return; }
+    if (!isValidUrl(url)) { showError("Please enter a valid URL starting with 'https://' or 'http://'"); return; }
 
     const btn = document.getElementById('shorten-btn');
     const btnText = document.getElementById('btn-text');
