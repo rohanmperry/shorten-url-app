@@ -13,8 +13,9 @@ jobs:
   infra-pr:
     name: Infra PR
     uses: ./.github/workflows/infra-change.yaml
+    secrets:
+      AWS_GITHUB_ROLE_ARN: ${{ secrets.AWS_GITHUB_ROLE_ARN }}
     with:
       runs-on: ubuntu-latest
       tf-version: '1.14.8'
-      aws-web-role-arn: 'arn:aws:iam::659212880322:role/github-actions'
       apply: false
