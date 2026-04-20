@@ -18,7 +18,7 @@ on:
         default: false
     secrets:
       AWS_GITHUB_ROLE_ARN:
-        required: tru
+        required: true
 
 env:
   AWS_DEFAULT_REGION: ${{ inputs.aws-region || 'us-east-1' }}
