@@ -36,6 +36,20 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v6
 
+      - name: Check Changed Files
+        uses: dorny/paths-filter@v4
+        id: file_changes
+        with:
+          filters: |
+            lambda:
+              - 'src/create_short_url/**'
+              - 'src/redirect/**'
+              - 'src/shared/**'
+              - 'Dockerfile'
+            terraform:
+              - 'terraform/**'
+              - 'src/frontend/**'
+
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
@@ -67,20 +81,21 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: TF Init and Validate
+        if: steps.file_changes.outputs.terraform == 'true'
         run: |
           make init
           make validate
 
       - name: TF Plan
-        if: ${{ !inputs.apply }}
+        if: ${{ !inputs.apply && steps.file_changes.outputs.terraform == 'true' }}
         run: make plan
         timeout-minutes: 2
 
       - name: TF Apply
-        if: ${{ inputs.apply }}
+        if: ${{ inputs.apply && steps.file_changes.outputs.terraform == 'true' }}
         run: make apply
         timeout-minutes: 5
 
       - name: Image Push
-        if: ${{ inputs.apply }}
+        if: ${{ inputs.apply && steps.file_changes.outputs.lambda == 'true' }}
         run: make push
