@@ -29,16 +29,16 @@ env:
   TF_LOG: ''
 
 jobs:
-  run-change:
-    name: Run Change
+  check-changes:
+    name: Check Change
     runs-on: ${{ inputs.runs-on }}
     steps:
-      - name: Checkout Code
+      - name: Check Changed Files
         uses: actions/checkout@v6
 
       - name: Check Changed Files
         uses: dorny/paths-filter@v4
-        id: file_changes
+        id: changes
         with:
           filters: |
             lambda:
@@ -50,52 +50,71 @@ jobs:
               - 'terraform/**'
               - 'src/frontend/**'
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
+  lambda:
+    - name: Lambda
+      needs: check-changes
+      if: needs.check-changes.outputs.lambda == 'true'
+      runs-on: ${{ inputs.runs-on }}
 
-      - name: Install dependencies
-        run: make install-dev
+      steps:
+        - name: Checkout Code
+        - uses: actions/checkout@v6
 
-      - name: Run Tests
-        run: make test
+        - name: Install dependencies
+        - uses: actions/setup-python@v6
+          with:
+            python-version: '3.11'
+          run: make install-dev
 
-      - name: Build Images for Testing
-        if: ${{ !inputs.apply }}
-        run: make build-only
+        - name: Run Tests
+          run: make test
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
-          role-to-assume: ${{ secrets.AWS_GITHUB_ROLE_ARN }}
-          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v6
+          with:
+            role-to-assume: ${{ secrets.AWS_GITHUB_ROLE_ARN }}
+            aws-region: ${{ env.AWS_DEFAULT_REGION }}
 
-      - name: Build Images for Push
-        if: ${{ inputs.apply }}
-        run: make build
+        - name: Validate Build Images
+          if: ${{ !inputs.apply }}
+          run: make build-only
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v4
-        with:
+        - name: Build Images for Push
+          if: ${{ inputs.apply }}
+          run: make build
+
+        - name: Push Images
+          if: ${{ inputs.apply }}
+          run: make push
+
+  terraform:
+    - name: Terraform
+      needs: check-changes
+      if: needs.check-changes.outputs.terraform == 'true'
+      runs-on: ${{ inputs.runs-on }}
+
+      steps:
+        - name: Checkout Code
+        - uses: actions/checkout@v6
+
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v6
+          with:
+            role-to-assume: ${{ secrets.AWS_GITHUB_ROLE_ARN }}
+            aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+        - uses: hashicorp/setup-terraform@v4
+          with:
           terraform_version: ${{ env.TF_VERSION }}
-
-      - name: TF Init and Validate
-        if: steps.file_changes.outputs.terraform == 'true'
-        run: |
-          make init
-          make validate
-
-      - name: TF Plan
-        if: ${{ !inputs.apply && steps.file_changes.outputs.terraform == 'true' }}
-        run: make plan
-        timeout-minutes: 2
-
-      - name: TF Apply
-        if: ${{ inputs.apply && steps.file_changes.outputs.terraform == 'true' }}
-        run: make apply
-        timeout-minutes: 5
-
-      - name: Image Push
-        if: ${{ inputs.apply && steps.file_changes.outputs.lambda == 'true' }}
-        run: make push
+        - name: TF Init and Validate
+          run: |
+            make init
+            make validate
+        - name: TF Plan
+          if: ${{ !inputs.apply }}
+          run: make plan
+          timeout-minutes: 2
+        - name: TF Apply
+          if: ${{ inputs.apply }}
+          run: make apply
+          timeout-minutes: 5
