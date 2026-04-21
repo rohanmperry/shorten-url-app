@@ -50,6 +50,12 @@ jobs:
               - 'terraform/**'
               - 'src/frontend/**'
 
+      - name: Debug outputs
+        run: |
+          echo "lambda: ${{ steps.changes.outputs.lambda }}"
+          echo "terraform: ${{ steps.changes.outputs.terraform }}"
+          echo "changes: ${{ steps.changes.outputs.changes }}"
+
   lambda:
     name: Lambda
     needs: check-changes
