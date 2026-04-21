@@ -51,69 +51,72 @@ jobs:
               - 'src/frontend/**'
 
   lambda:
-    - name: Lambda
-      needs: check-changes
-      if: needs.check-changes.outputs.lambda == 'true'
-      runs-on: ${{ inputs.runs-on }}
+    name: Lambda
+    needs: check-changes
+    if: needs.check-changes.outputs.lambda == 'true'
+    runs-on: ${{ inputs.runs-on }}
 
-      steps:
-        - name: Checkout Code
-        - uses: actions/checkout@v6
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
 
-        - name: Install dependencies
-        - uses: actions/setup-python@v6
-          with:
-            python-version: '3.11'
-          run: make install-dev
+      - name: Install dependencies
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+        run: make install-dev
 
-        - name: Run Tests
-          run: make test
+      - name: Run Tests
+        run: make test
 
-        - name: Configure AWS Credentials
-          uses: aws-actions/configure-aws-credentials@v6
-          with:
-            role-to-assume: ${{ secrets.AWS_GITHUB_ROLE_ARN }}
-            aws-region: ${{ env.AWS_DEFAULT_REGION }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_GITHUB_ROLE_ARN }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
 
-        - name: Validate Build Images
-          if: ${{ !inputs.apply }}
-          run: make build-only
+      - name: Validate Build Images
+        if: ${{ !inputs.apply }}
+        run: make build-only
 
-        - name: Build Images for Push
-          if: ${{ inputs.apply }}
-          run: make build
+      - name: Build Images for Push
+        if: ${{ inputs.apply }}
+        run: make build
 
-        - name: Push Images
-          if: ${{ inputs.apply }}
-          run: make push
+      - name: Push Images
+        if: ${{ inputs.apply }}
+        run: make push
 
   terraform:
-    - name: Terraform
-      needs: check-changes
-      if: needs.check-changes.outputs.terraform == 'true'
-      runs-on: ${{ inputs.runs-on }}
+    name: Terraform
+    needs: check-changes
+    if: needs.check-changes.outputs.terraform == 'true'
+    runs-on: ${{ inputs.runs-on }}
 
-      steps:
-        - name: Checkout Code
-        - uses: actions/checkout@v6
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
 
-        - name: Configure AWS Credentials
-          uses: aws-actions/configure-aws-credentials@v6
-          with:
-            role-to-assume: ${{ secrets.AWS_GITHUB_ROLE_ARN }}
-            aws-region: ${{ env.AWS_DEFAULT_REGION }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_GITHUB_ROLE_ARN }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
 
-        - uses: hashicorp/setup-terraform@v4
-          with:
-          terraform_version: ${{ env.TF_VERSION }}
-        - name: TF Init and Validate
-          run: |
-            make init
-            make validate
-        - name: TF Plan
+      - uses: hashicorp/setup-terraform@v4
+        with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+      - name: TF Init and Validate
+        run: |
+          make init
+          make validate
+
+      - name: TF Plan
           if: ${{ !inputs.apply }}
           run: make plan
           timeout-minutes: 2
+
         - name: TF Apply
           if: ${{ inputs.apply }}
           run: make apply
