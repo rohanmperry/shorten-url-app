@@ -54,17 +54,18 @@ jobs:
 
       - name: Debug outputs
         run: |
-          echo "terraform value: '${{ needs.check-changes.outputs.terraform }}'"
-          echo "lambda value: '${{ needs.check-changes.outputs.lambda }}'"
+          echo "terraform value: '${{ changes.outputs.terraform }}'"
+          echo "lambda value: '${{ changes.outputs.lambda }}'"
 
   testing:
     name: Testing
     needs: check-changes
-    if: needs.changes.outputs.terraform != 'false'
     runs-on: ${{ inputs.runs-on }}
     steps:
       - name: Testing
-        run: echo "XXXXXXXXX"
+        run: |
+          echo "terraform value: '${{ needs.changes.outputs.terraform }}'"
+          echo "lambda value: '${{ needs.changes.outputs.lambda }}'"
 
   lambda:
     name: Lambda
