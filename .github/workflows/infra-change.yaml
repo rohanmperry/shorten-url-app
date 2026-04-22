@@ -56,6 +56,11 @@ jobs:
           echo "terraform: ${{ steps.changes.outputs.terraform }}"
           echo "changes: ${{ steps.changes.outputs.changes }}"
 
+      - name: Test
+        if: steps.changes.outputs.terraform
+        run: |
+          echo "XXXXXXXXXXXXX"
+
   lambda:
     name: Lambda
     needs: check-changes
