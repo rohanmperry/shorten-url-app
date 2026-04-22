@@ -52,7 +52,7 @@ jobs:
 
       - name: Debug outputs
         run: |
-          echo "lambda: ${{ steps.changes.outputs.lambda }}"
+          echo lambda: steps.changes.outputs.lambda
           echo "terraform: ${{ steps.changes.outputs.terraform }}"
           echo "changes: ${{ steps.changes.outputs.changes }}"
 
