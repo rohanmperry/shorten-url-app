@@ -64,7 +64,7 @@ jobs:
   testing:
     name: Testing
     needs: check-changes
-    if: needs.check-changes.outputs.terraform == 'false'
+    if: needs.check-changes.outputs.terraform == 'true'
     runs-on: ${{ inputs.runs-on }}
     steps:
       - name: Testing
