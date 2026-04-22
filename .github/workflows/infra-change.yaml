@@ -67,8 +67,8 @@ jobs:
     if: needs.check-changes.outputs.terraform == 'false'
     runs-on: ${{ inputs.runs-on }}
     steps:
-      name: Testing
-      run: echo "XXXXXXXXX"
+      - name: Testing
+        run: echo "XXXXXXXXX"
 
   lambda:
     name: Lambda
