@@ -32,6 +32,8 @@ jobs:
   check-changes:
     name: Check Change
     runs-on: ${{ inputs.runs-on }}
+    permissions:
+      pull-requests: read
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
