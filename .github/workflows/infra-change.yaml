@@ -57,7 +57,7 @@ jobs:
           echo "changes: ${{ steps.changes.outputs.changes }}"
 
       - name: Test
-        if: steps.changes.outputs.terraform == 'true'
+        if: steps.changes.outputs.terraform == 'false'
         run: |
           echo "XXXXXXXXXXXXX"
 
