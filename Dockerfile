@@ -1,4 +1,5 @@
 # Base stage — shared Python runtime and utils
+# diff
 
 FROM public.ecr.aws/lambda/python:3.11 AS base
 COPY src/shared/utils.py ${LAMBDA_TASK_ROOT}/
