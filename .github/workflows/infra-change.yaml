@@ -34,8 +34,8 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
 
     outputs:
-      lambda_changed: ${{ steps.changes.outputs.lambda }}
-      terraform_changed: ${{ steps.changes.outputs.terraform }}
+      lambda_changed: ${{ steps.changes.outputs.lambda_src }}
+      terraform_changed: ${{ steps.changes.outputs.terraform_src }}
 
     steps:
       - name: Checkout Code
