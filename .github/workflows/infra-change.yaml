@@ -29,78 +29,129 @@ env:
   TF_LOG: ''
 
 jobs:
-  run-change:
-    name: Run Change
+  check-changes:
+    name: Check Change
     runs-on: ${{ inputs.runs-on }}
+
+    outputs:
+      lambda_changed: ${{ steps.changes.outputs.lambda_src }}
+      terraform_changed: ${{ steps.changes.outputs.terraform_src }}
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
 
-      - name: Check changed files
+      - name: Check Changed Files
         uses: dorny/paths-filter@v3
         id: changes
         with:
           filters: |
-            lambda:
+            lambda_src:
               - 'src/create_short_url/**'
               - 'src/redirect/**'
               - 'src/shared/**'
               - 'Dockerfile'
-            terraform:
+            terraform_src:
               - 'terraform/**'
               - 'src/frontend/**'
 
+      - name: Debug outputs
+        run: |
+          echo "lambda_src set to: '${{ steps.changes.outputs.lambda_src }}'"
+          echo "terraform_src set to: '${{ steps.changes.outputs.terraform_src }}'"
+
+  announce:
+    name: Announce
+    needs: check-changes
+    runs-on: ${{ inputs.runs-on }}
+
+    steps:
+      - name: Announce if Lambda Changes Found
+        if: ${{ needs.check-changes.outputs.lambda_changed == 'true' }}
+        run: echo "Lambda changes detected."
+
+      - name: Announce if No Lambda Changes Found
+        if: ${{ needs.check-changes.outputs.lambda_changed == 'false' }}
+        run: echo "No Lambda changes detected."
+
+      - name: Announce if Terraform Changes Found
+        if: ${{ needs.check-changes.outputs.terraform_changed == 'true' }}
+        run: echo "Terraform changes detected."
+
+      - name: Announce if No Terraform Changes Found
+        if: ${{ needs.check-changes.outputs.terraform_changed == 'false' }}
+        run: echo "No Terraform changes detected."
+
+  lambda:
+    name: Lambda
+    needs: check-changes
+    if: ${{ needs.check-changes.outputs.lambda_changed == 'true' }}
+    runs-on: ${{ inputs.runs-on }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
       - name: Setup Python
-        if: steps.changes.outputs.lambda == 'true'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
       - name: Install dependencies
-        if: steps.changes.outputs.lambda == 'true'
         run: make install-dev
 
       - name: Run Tests
-        if: steps.changes.outputs.lambda == 'true'
         run: make test
 
       - name: Configure AWS Credentials
-        if: steps.changes.outputs.terraform == 'true' || steps.changes.outputs.lambda == 'true'
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_GITHUB_ROLE_ARN }}
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
 
-      - name: Set up Terraform
-        if: steps.changes.outputs.terraform == 'true'
-        uses: hashicorp/setup-terraform@v4
+      - name: Validate Build Images
+        if: ${{ !inputs.apply }}
+        run: make build-only
+
+      - name: Build Images for Push
+        if: ${{ inputs.apply }}
+        run: make build
+
+      - name: Push Images
+        if: ${{ inputs.apply }}
+        run: make push
+
+  terraform:
+    name: Terraform
+    needs: check-changes
+    if: needs.check-changes.outputs.terraform_changed == 'true'
+    runs-on: ${{ inputs.runs-on }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
         with:
-          terraform_version: ${{ inputs.tf-version }}
+          role-to-assume: ${{ secrets.AWS_GITHUB_ROLE_ARN }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
 
       - name: TF Init and Validate
-        if: steps.changes.outputs.terraform == 'true'
         run: |
           make init
           make validate
 
       - name: TF Plan
-        if: ${{ !inputs.apply && steps.changes.outputs.terraform == 'true' }}
+        if: ${{ !inputs.apply }}
         run: make plan
         timeout-minutes: 2
 
       - name: TF Apply
-        if: ${{ inputs.apply && steps.changes.outputs.terraform == 'true' }}
+        if: ${{ inputs.apply }}
         run: make apply
         timeout-minutes: 5
-
-      - name: Validate Docker build
-        if: ${{ !inputs.apply && steps.changes.outputs.lambda == 'true' }}
-        run: make build-only
-
-      - name: Build images
-        if: ${{ inputs.apply && steps.changes.outputs.lambda == 'true' }}
-        run: make build
-
-      - name: Push images
-        if: ${{ inputs.apply && steps.changes.outputs.lambda == 'true' }}
-        run: make push

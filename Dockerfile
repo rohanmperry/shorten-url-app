@@ -1,3 +1,4 @@
+#
 # Base stage — shared Python runtime and utils
 
 FROM public.ecr.aws/lambda/python:3.11 AS base
