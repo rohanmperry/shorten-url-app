@@ -71,7 +71,7 @@ jobs:
         run: echo "Lambda changes detected."
 
       - name: Announce if No Lambda Changes Found
-        if: ${{ needs.check-changes.outputs.lambda_changed == 'true' }}
+        if: ${{ needs.check-changes.outputs.lambda_changed == 'false' }}
         run: echo "Lambda changes detected."
 
       - name: Announce if Terraform Changes Found
@@ -79,7 +79,7 @@ jobs:
         run: echo "Terraform changes detected."
 
       - name: Announce if No Terraform Changes Found
-        if: ${{ needs.check-changes.outputs.terraform_changed == 'true' }}
+        if: ${{ needs.check-changes.outputs.terraform_changed == 'false' }}
         run: echo "Terraform changes detected."
 
   lambda:
