@@ -85,7 +85,7 @@ jobs:
   lambda:
     name: Lambda
     needs: check-changes
-    if: ${{ needs.check-changes.outputs.lambda_changed == 'false' }}
+    if: ${{ needs.check-changes.outputs.lambda_changed == 'true' }}
     runs-on: ${{ inputs.runs-on }}
 
     steps:
