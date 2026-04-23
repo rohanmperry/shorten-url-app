@@ -34,8 +34,8 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
 
     outputs:
-      lambda: ${{ steps.changes.outputs.lambda }}
-      terraform: ${{ steps.changes.outputs.terraform }}
+      lambda_changed: ${{ steps.changes.outputs.lambda }}
+      terraform_changed: ${{ steps.changes.outputs.terraform }}
 
     steps:
       - name: Checkout Code
@@ -46,34 +46,46 @@ jobs:
         id: changes
         with:
           filters: |
-            lambda:
+            lambda_src:
               - 'src/create_short_url/**'
               - 'src/redirect/**'
               - 'src/shared/**'
               - 'Dockerfile'
-            terraform:
+            terraform_src:
               - 'terraform/**'
               - 'src/frontend/**'
 
       - name: Debug outputs
         run: |
-          echo "terraform value: '${{ steps.changes.outputs.terraform }}'"
-          echo "lambda value: '${{ steps.changes.outputs.lambda }}'"
+          echo "lambda_src set to: '${{ steps.changes.outputs.lambda_src }}'"
+          echo "terraform_src set to: '${{ steps.changes.outputs.terraform_src }}'"
 
-  testing:
-    name: Testing
+  announce:
+    name: Announce
     needs: check-changes
     runs-on: ${{ inputs.runs-on }}
+
     steps:
-      - name: Testing
-        run: |
-          echo "terraform value: '${{ needs.check-changes.outputs.terraform }}'"
-          echo "lambda value: '${{ needs.check-changes.outputs.lambda }}'"
+      - name: Announce if Lambda Changes Found
+        if: ${{ needs.check-changes.outputs.lambda_changed == 'true' }}
+        run: echo "Lambda changes detected."
+
+      - name: Announce if No Lambda Changes Found
+        if: ${{ needs.check-changes.outputs.lambda_changed == 'true' }}
+        run: echo "Lambda changes detected."
+
+      - name: Announce if Terraform Changes Found
+        if: ${{ needs.check-changes.outputs.terraform_changed == 'true' }}
+        run: echo "Terraform changes detected."
+
+      - name: Announce if No Terraform Changes Found
+        if: ${{ needs.check-changes.outputs.terraform_changed == 'true' }}
+        run: echo "Terraform changes detected."
 
   lambda:
     name: Lambda
     needs: check-changes
-    if: ${{ needs.check-changes.outputs.lambda == 'false' }}
+    if: ${{ needs.check-changes.outputs.lambda_changed == 'false' }}
     runs-on: ${{ inputs.runs-on }}
 
     steps:
@@ -112,7 +124,7 @@ jobs:
   terraform:
     name: Terraform
     needs: check-changes
-    if: needs.check-changes.outputs.terraform == 'true'
+    if: needs.check-changes.outputs.terraform_changed == 'true'
     runs-on: ${{ inputs.runs-on }}
 
     steps:
