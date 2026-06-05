@@ -5,7 +5,11 @@
 	<title></title>
 	<meta name="generator" content="LibreOffice 24.2.7.2 (Linux)"/>
 	<meta name="created" content="00:00:00"/>
-	<meta name="changed" content="2026-04-28T16:04:03.951642695"/>
+	<meta name="changed" content="2026-06-05T17:43:24.135588662"/>
+	<meta name="created" content="00:00:00">
+	<meta name="created" content="00:00:00">
+	<meta name="created" content="00:00:00">
+	<meta name="created" content="00:00:00">
 	<meta name="created" content="00:00:00">
 	<meta name="created" content="00:00:00">
 	<meta name="created" content="00:00:00">
@@ -97,17 +101,25 @@ code available on GitHub: </font></font>
 <br/>
 
 </p>
-<p align="center"><font size="4" style="font-size: 14pt"><b><font face="Calibri, sans-serif">An
-Alternate Approach</font></b></font></p>
-<p align="left" style="font-weight: normal"><font size="2" style="font-size: 11pt"><font face="Calibri, sans-serif">A
-different approach is also available with ECS </font><font face="Calibri, sans-serif">and
-</font><font face="Calibri, sans-serif">Fargate. However, this
-solution requires 24 x 7 running of Fargate tasks. For cost
-constraints this solution is not </font><font face="Calibri, sans-serif">continuously
-</font><font face="Calibri, sans-serif">running </font><font face="Calibri, sans-serif">on
-AWS, but it was tested with local Terraform applies and then
-destroyed.</font></font></p>
-<p align="left" style="font-weight: normal"><font size="2" style="font-size: 11pt"><font face="Calibri, sans-serif">Anyway,
+<p><br/>
+<br/>
+
+</p>
+<p align="center"><font face="Calibri, sans-serif"><font size="4" style="font-size: 14pt"><b>Other
+(non-Lambda) Solutions</b></font></font></p>
+<p align="center"><br/>
+<br/>
+
+</p>
+<p align="center"><font face="Calibri, sans-serif"><font size="3" style="font-size: 12pt"><b>ECS/Fargate
+Approach</b></font></font></p>
+<p align="left" style="font-weight: normal"><font size="2" style="font-size: 11pt"><font face="Calibri, sans-serif">This
+is an alternate approach</font> <font face="Calibri, sans-serif">with
+ECS and Fargate. However, this solution requires 24 x 7 running of
+Fargate tasks. For cost constraints this solution is not continuously
+running on AWS, but it was tested with local Terraform applies and
+then destroyed.</font></font></p>
+<p align="left" style="font-weight: normal"><font face="Calibri, sans-serif"><font size="2" style="font-size: 11pt">Anyway,
 as a portfolio project demonstration, the source code is available on
 GitHub:</font></font></p>
 <ul>
@@ -115,6 +127,26 @@ GitHub:</font></font></p>
 	— AWS infrastructure (ECS, Fargate)</span></font></font></p></li>
 	<li><p align="left"><font face="Calibri, sans-serif"><font size="2" style="font-size: 11pt"><span style="font-weight: normal"><a href="https://github.com/rohanmperry/shorten-url-ecs-app">shorten-url-ecs-app</a>
 	— Application code (Python, Docker images)</span></font></font></p></li>
+</ul>
+<p align="center"><br/>
+<br/>
+
+</p>
+<p align="center"><font face="Calibri, sans-serif"><font size="3" style="font-size: 12pt"><b>EKS
+(Kubernetes)/EC2 with Helm Approach</b></font></font></p>
+<p align="left" style="font-weight: normal"><font size="2" style="font-size: 11pt"><font face="Calibri, sans-serif">Here
+is an EKS (Kubrnetes)/EC2 and Helm approach. As with ECS above, this
+solution requires 24 x 7 running of the EKS Cluster, and for</font>
+<font face="Calibri, sans-serif">cost constraints this solution is
+not continuously running on AWS, but it was tested with local
+Terraform applies and Helm deploys and then destroyed.</font></font></p>
+<p align="left" style="font-weight: normal"><font face="Calibri, sans-serif"><font size="2" style="font-size: 11pt">Anyway,
+as a portfolio project demonstration, the source code is available on
+GitHub:</font></font></p>
+<ul>
+	<li><p align="left" style="margin-bottom: 0in"><a href="https://github.com/rohanmperry/shorten-url-eks"><font face="Calibri, sans-serif"><font size="2" style="font-size: 11pt"><span style="font-weight: normal">shorten-url-eks</span></font></font></a>
+	— <font face="Calibri, sans-serif"><font size="2" style="font-size: 11pt"><span style="font-weight: normal">AWS
+	infrastructure (EKS) and Helm Charts</span></font></font></p></li>
 </ul>
 </body>
 </html>
