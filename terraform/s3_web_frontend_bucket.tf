@@ -51,11 +51,12 @@ resource "aws_s3_bucket_policy" "frontend" {
 # Upload the index.html object, if it has changed.
 #
 resource "aws_s3_object" "frontend_index" {
-  bucket       = aws_s3_bucket.frontend.id
-  key          = "index.html"
-  source       = "${path.root}/../src/frontend/index.html"
-  content_type = "text/html"
-  etag         = filemd5("${path.root}/../src/frontend/index.html")
+  bucket        = aws_s3_bucket.frontend.id
+  key           = "index.html"
+  source        = "${path.root}/../src/frontend/index.html"
+  content_type  = "text/html"
+  etag          = filemd5("${path.root}/../src/frontend/index.html")
+  cache_control = "no-cache"
 
   depends_on = [aws_s3_bucket.frontend]
 
@@ -68,11 +69,12 @@ resource "aws_s3_object" "frontend_index" {
 # Upload the 404.html object, if it has changed.
 #
 resource "aws_s3_object" "frontend_404" {
-  bucket       = aws_s3_bucket.frontend.id
-  key          = "404.html"
-  source       = "${path.root}/../src/frontend/404.html"
-  content_type = "text/html"
-  etag         = filemd5("${path.root}/../src/frontend/404.html")
+  bucket        = aws_s3_bucket.frontend.id
+  key           = "404.html"
+  source        = "${path.root}/../src/frontend/404.html"
+  content_type  = "text/html"
+  etag          = filemd5("${path.root}/../src/frontend/404.html")
+  cache_control = "no-cache"
 
   depends_on = [aws_s3_bucket.frontend]
 
@@ -85,11 +87,12 @@ resource "aws_s3_object" "frontend_404" {
 # Upload the description.html object, if it has changed.
 #
 resource "aws_s3_object" "frontend_description" {
-  bucket       = aws_s3_bucket.frontend.id
-  key          = "description.html"
-  source       = "${path.root}/../src/frontend/description.html"
-  content_type = "text/html"
-  etag         = filemd5("${path.root}/../src/frontend/description.html")
+  bucket        = aws_s3_bucket.frontend.id
+  key           = "description.html"
+  source        = "${path.root}/../src/frontend/description.html"
+  content_type  = "text/html"
+  etag          = filemd5("${path.root}/../src/frontend/description.html")
+  cache_control = "no-cache"
 
   depends_on = [aws_s3_bucket.frontend]
 
